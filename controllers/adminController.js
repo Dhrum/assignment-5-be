@@ -1,22 +1,40 @@
-const { getAllUsers, updateUserRole } = require('../services/adminService');
+const User = require('../models/User');
 
-const listUsers = async (req, res) => {
+const getAllUsers = async (req, res) => {
     try {
-        const users = await getAllUsers();
-        res.json(users);
+        const users = await User.find();
+        res.status(200).json(users);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ message: 'Error fetching users', error: error.message });
     }
 };
 
-const changeUserRole = async (req, res) => {
+const getUserById = async (req, res) => {
     try {
-        const { role } = req.body;
-        const updatedUser = await updateUserRole(req.params.userId, role);
-        res.json({ message: 'User role updated', user: updatedUser });
+        const user = await User.findById(req.params.id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.status(200).json(user);
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        res.status(500).json({ message: 'Error fetching user', error: error.message });
     }
 };
 
-module.exports = { listUsers, changeUserRole };
+const deleteUser = async (req, res) => {
+    try {
+        const deletedUser = await User.findByIdAndDelete(req.params.id);
+        if (!deletedUser) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.status(200).json({ message: 'User deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ message: 'Error deleting user', error: error.message });
+    }
+};
+
+module.exports = {
+    getAllUsers,
+    getUserById,
+    deleteUser,
+};

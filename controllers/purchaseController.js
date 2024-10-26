@@ -1,23 +1,64 @@
-const { createPurchase, getUserPurchases } = require('../services/purchaseService');
+const Purchase = require('../models/Purchase');
 
-const logPurchase = async (req, res) => {
+const createPurchase = async (req, res) => {
     try {
-        const userId = req.user.id;
-        const purchase = await createPurchase(userId, req.body);
-        res.status(201).json({ message: 'Purchase successful', purchase });
+        const newPurchase = new Purchase(req.body);
+        const savedPurchase = await newPurchase.save();
+        res.status(201).json(savedPurchase);
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        res.status(500).json({ message: 'Error creating purchase', error: error.message });
     }
 };
 
-const listUserPurchases = async (req, res) => {
+const updatePurchase = async (req, res) => {
     try {
-        const userId = req.user.id;
-        const purchases = await getUserPurchases(userId);
-        res.json(purchases);
+        const updatedPurchase = await Purchase.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        if (!updatedPurchase) {
+            return res.status(404).json({ message: 'Purchase not found' });
+        }
+        res.status(200).json(updatedPurchase);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ message: 'Error updating purchase', error: error.message });
     }
 };
 
-module.exports = { logPurchase, listUserPurchases };
+const deletePurchase = async (req, res) => {
+    try {
+        const deletedPurchase = await Purchase.findByIdAndDelete(req.params.id);
+        if (!deletedPurchase) {
+            return res.status(404).json({ message: 'Purchase not found' });
+        }
+        res.status(200).json({ message: 'Purchase deleted' });
+    } catch (error) {
+        res.status(500).json({ message: 'Error deleting purchase', error: error.message });
+    }
+};
+
+const getPurchase = async (req, res) => {
+    try {
+        const purchase = await Purchase.findById(req.params.id);
+        if (!purchase) {
+            return res.status(404).json({ message: 'Purchase not found' });
+        }
+        res.status(200).json(purchase);
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching purchase', error: error.message });
+    }
+};
+
+const getAllPurchases = async (req, res) => {
+    try {
+        const purchases = await Purchase.find();
+        res.status(200).json(purchases);
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching purchases', error: error.message });
+    }
+};
+
+module.exports = {
+    createPurchase,
+    updatePurchase,
+    deletePurchase,
+    getPurchase,
+    getAllPurchases,
+};

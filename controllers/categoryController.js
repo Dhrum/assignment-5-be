@@ -1,39 +1,69 @@
-const { addCategory, getAllCategories, updateCategory, deleteCategory } = require('../services/categoryService');
+const Category = require('../models/Category');
 
+// Create a new category
 const createCategory = async (req, res) => {
     try {
-        const category = await addCategory(req.body);
-        res.status(201).json(category);
+        const newCategory = new Category(req.body);
+        const savedCategory = await newCategory.save();
+        res.status(201).json(savedCategory);
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        res.status(500).json({ message: 'Error creating category', error: error.message });
     }
 };
 
-const listCategories = async (req, res) => {
+// Update an existing category
+const updateCategory = async (req, res) => {
     try {
-        const categories = await getAllCategories();
-        res.json(categories);
+        const updatedCategory = await Category.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        if (!updatedCategory) {
+            return res.status(404).json({ message: 'Category not found' });
+        }
+        res.status(200).json(updatedCategory);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ message: 'Error updating category', error: error.message });
     }
 };
 
-const editCategory = async (req, res) => {
+// Delete a category
+const deleteCategory = async (req, res) => {
     try {
-        const updatedCategory = await updateCategory(req.params.categoryId, req.body);
-        res.json(updatedCategory);
+        const deletedCategory = await Category.findByIdAndDelete(req.params.id);
+        if (!deletedCategory) {
+            return res.status(404).json({ message: 'Category not found' });
+        }
+        res.status(200).json({ message: 'Category deleted' });
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        res.status(500).json({ message: 'Error deleting category', error: error.message });
     }
 };
 
-const removeCategory = async (req, res) => {
+// Get a single category
+const getCategory = async (req, res) => {
     try {
-        await deleteCategory(req.params.categoryId);
-        res.json({ message: 'Category deleted' });
+        const category = await Category.findById(req.params.id);
+        if (!category) {
+            return res.status(404).json({ message: 'Category not found' });
+        }
+        res.status(200).json(category);
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        res.status(500).json({ message: 'Error fetching category', error: error.message });
     }
 };
 
-module.exports = { createCategory, listCategories, editCategory, removeCategory };
+// Get all categories
+const getAllCategories = async (req, res) => {
+    try {
+        const categories = await Category.find();
+        res.status(200).json(categories);
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching categories', error: error.message });
+    }
+};
+
+module.exports = {
+    createCategory,
+    updateCategory,
+    deleteCategory,
+    getCategory,
+    getAllCategories,
+};

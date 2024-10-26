@@ -1,10 +1,22 @@
 const express = require('express');
-const { logPurchase, listUserPurchases } = require('../controllers/purchaseController');
-const authMiddleware = require('../middlewares/authMiddleware');
+const { createPurchase, updatePurchase, deletePurchase, getPurchase, getAllPurchases } = require('../controllers/purchaseController');
+const { authMiddleware, isAdmin } = require('../middlewares/authMiddleware');
 
 const router = express.Router();
 
-router.post('/', authMiddleware, logPurchase);
-router.get('/', authMiddleware, listUserPurchases);
+// Create a new purchase
+router.post('/', authMiddleware, createPurchase);
+
+// Update a purchase
+router.put('/:id', authMiddleware, updatePurchase);
+
+// Delete a purchase
+router.delete('/:id', authMiddleware, isAdmin, deletePurchase);
+
+// Get a single purchase
+router.get('/:id', authMiddleware, getPurchase);
+
+// Get all purchases (admin only)
+router.get('/', authMiddleware, isAdmin, getAllPurchases);
 
 module.exports = router;

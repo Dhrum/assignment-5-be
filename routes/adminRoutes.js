@@ -1,11 +1,16 @@
 const express = require('express');
-const { listUsers, changeUserRole } = require('../controllers/adminController');
-const authMiddleware = require('../middlewares/authMiddleware');
-const adminMiddleware = require('../middlewares/adminMiddleware');
+const { getAllUsers, getUserById, deleteUser } = require('../controllers/adminController');
+const { authMiddleware, isAdmin } = require('../middlewares/authMiddleware');
 
 const router = express.Router();
 
-router.get('/users', authMiddleware, adminMiddleware, listUsers);
-router.put('/users/:userId/role', authMiddleware, adminMiddleware, changeUserRole);
+// Get all users (Admin only)
+router.get('/users', authMiddleware, isAdmin, getAllUsers);
+
+// Get user by ID (Admin only)
+router.get('/users/:id', authMiddleware, isAdmin, getUserById);
+
+// Delete user (Admin only)
+router.delete('/users/:id', authMiddleware, isAdmin, deleteUser);
 
 module.exports = router;

@@ -1,23 +1,36 @@
-const User = require('../models/User');
+const { registerUser, loginUser, googleLogin } = require('../services/authService');
 
-const registerUser = async (req, res) => {
+const register = async (req, res) => {
     try {
-        const { name, email, phone, address } = req.body;
-        const user = new User({ name, email, phone, address });
-        await user.save();
-        res.status(201).json({ message: 'User registered successfully' });
+        const user = await registerUser(req.body);
+        res.status(201).json({ message: 'User registered successfully', user });
     } catch (error) {
-        res.status(500).json({ message: 'Error registering user' });
+        res.status(400).json({ message: error.message });
     }
 };
 
-const getUserDetails = async (req, res) => {
+const login = async (req, res) => {
     try {
-        const user = await User.findOne({ email: req.user.email });
-        res.status(200).json(user);
+        const { email, password } = req.body;
+        const { user, token } = await loginUser(email, password);
+        res.json({ user, token });
     } catch (error) {
-        res.status(500).json({ message: 'Error fetching user details' });
+        res.status(400).json({ message: error.message });
     }
 };
 
-module.exports = { registerUser, getUserDetails };
+const googleSignIn = async (req, res) => {
+    try {
+        const { googleId, email, name, profilePicture } = req.body;
+        const { user, token } = await googleLogin({ googleId, email, name, profilePicture });
+        res.json({ user, token });
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+};
+
+module.exports = {
+    register,
+    login,
+    googleSignIn,
+};

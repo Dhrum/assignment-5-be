@@ -8,21 +8,18 @@ const register = async (req, res) => {
     try {
         const { name, email, password } = req.body;
 
-        console.log('token',req.headers);
+        
         // Verify Firebase token to get the UID
         const token = req.headers.authorization?.split(' ')[1];
-        console.log('token',token);
         const decodedToken = await verifyFirebaseToken(token);
-        console.log('decodedtoken',decodedToken);
-
+        
         if (!decodedToken || !decodedToken.uid) {
             return res.status(400).json({ message: 'Invalid Firebase token' });
         }
 
         // Extract the Firebase UID
         const firebaseUid = decodedToken.uid;
-        console.log(firebaseUid);
-
+        
         // Check if user already exists
         const existingUser = await User.findOne({ email });
         if (existingUser) {

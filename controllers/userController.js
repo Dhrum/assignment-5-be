@@ -17,12 +17,12 @@ const getUserProfile = async (req, res) => {
 const updateUserProfile = async (req, res) => {
     try {
         const firebaseUserId = req.user?.uid; // uid from Firebase token
-        console.log('Updating profile for firebaseUserId:', firebaseUserId);
+       
 
         if (!firebaseUserId) {
             return res.status(400).json({ message: 'Firebase User ID is missing in request' });
         }
-        console.log('model: ',User);
+       
         // Find user in MongoDB by their Firebase UID
         const user = await User.findOne({ firebaseUid: firebaseUserId }); 
         if (!user) {

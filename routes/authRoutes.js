@@ -13,21 +13,22 @@ router.post('/register', register);
 router.post('/login', login);
 
 
-const app = express();
-const PORT = process.env.PORT || 5002;
+ const app = express();
+// const PORT = process.env.PORT || 5000;
 
 
-require('dotenv').config();
-connectDB();
+// require('dotenv').config();
+// connectDB();
 
-app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
+// app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
+app.use(cors({ origin: 'https://glow-mart.surge.sh', credentials: true }));
 app.use(express.json());
 
 //app.use('/api/auth', authRoutes); // This line should include authRoutes
 
 
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+// app.listen(PORT, () => {
+//     console.log(`Server running on port ${PORT}`);
+// });
 
 module.exports = router;

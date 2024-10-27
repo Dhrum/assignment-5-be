@@ -46,16 +46,21 @@ const verifyJwtToken = async(req, res, next) => {
 // Middleware to check if the user is an admin
 const isAdmin = async (req, res, next) => {
     try {
-        const user = await User.findById(req.user.id);
+        // Find user by Firebase UID (ensure your user model has this field)
+        const user = await User.findOne({ firebaseUid: req.user.uid });
+        
+        // Check if the user exists and if their role is admin
         if (user && user.role === 'admin') {
             next();
         } else {
             return res.status(403).json({ message: 'Admin access required' });
         }
     } catch (error) {
-        return res.status(500).json({ message: 'Error checking admin role' });
+        console.error('Error checking admin role:', error);
+        return res.status(500).json({ message: 'Error checking admin role', error: error.message });
     }
 };
+
 
 // Export the middlewares
 module.exports = { authMiddleware, verifyJwtToken, isAdmin };
